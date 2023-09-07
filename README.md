@@ -9,9 +9,9 @@ Contains:
 
 See [Qingque Gamba](https://github.com/naoTimesdev/qingque-gamba) on the usages of this repository
 
-> Note
+> [!NOTE]
 > All images has been optimized with pingo with -s4 -l to lower filesize.
-> This project also use git lfs to store the data.
+> This project also use `git-lfs` to store the images.
 
 ## Acknowledgements
 - [Mar-7th/StarRailRes](https://github.com/Mar-7th/StarRailRes), derived from here. One key difference is that this one have additional assets for Simulated Universe.
