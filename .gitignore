@@ -3,3 +3,6 @@ config/
 exceloutput/
 extras/
 hoyolab/
+generated/
+.vscode/
+__pycache__
