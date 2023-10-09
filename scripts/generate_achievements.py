@@ -11,6 +11,7 @@ from sr_common import (
     read_config,
     save_config,
 )
+from sr_unity import strip_unity_rich_text
 
 __all__ = ("SRIndexAchivements",)
 
@@ -61,9 +62,9 @@ class SRIndexAchivements(SRIndexGenerator):
                     id=key,
                     series_id=str(value["SeriesID"]),
                     title=name,
-                    desc=desc,
-                    hide_desc=hidden_desc,
-                    ps_desc=playstation_desc,
+                    desc=strip_unity_rich_text(desc, only_tags=["unbreak"]),
+                    hide_desc=strip_unity_rich_text(hidden_desc, only_tags=["unbreak"]),
+                    ps_desc=strip_unity_rich_text(playstation_desc, only_tags=["unbreak"]),
                     hide=hide_achievement,
                 )
 
