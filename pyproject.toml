@@ -63,6 +63,7 @@ combine-as-imports = false
 split-on-trailing-comma = true
 required-imports = ["from __future__ import annotations"]
 known-first-party = ["scripts"]
+known-third-party = ["sr_common", "sr_unity"]
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.ruff.flake8-bugbear]

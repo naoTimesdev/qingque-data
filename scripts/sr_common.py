@@ -35,7 +35,7 @@ _Lang: TypeAlias = str
 LangAssets: TypeAlias = dict[_Lang, dict[str, str]]
 
 
-class _Hashable(TypedDict):
+class Hashable(TypedDict):
     Hash: int
 
 
@@ -88,7 +88,7 @@ def get_stable_hash(s: int | str) -> str:
     return str(combined_hash)
 
 
-def get_hash_content(hash_int_str: int | str | _Hashable, language: str = "en", *, lang_assets: LangAssets) -> str:
+def get_hash_content(hash_int_str: int | str | Hashable, language: str = "en", *, lang_assets: LangAssets) -> str:
     if isinstance(hash_int_str, dict):
         hash_int_str = hash_int_str["Hash"]
     hash_str = str(hash_int_str)
@@ -241,6 +241,11 @@ def read_config(config_name: str) -> dict[str, Any]:
 
 @overload
 def read_config(config_name: str, *, type: None) -> dict[str, Any]:
+    ...
+
+
+@overload
+def read_config(config_name: str, *, type: type[_TDict]) -> dict[str, _TDict]:
     ...
 
 
