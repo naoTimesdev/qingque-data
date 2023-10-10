@@ -15,7 +15,12 @@ from sr_common import (
 )
 from sr_unity import strip_unity_rich_text
 
-__all__ = ("SRIndexRogueBlessings",)
+__all__ = (
+    "SRIndexRogueWorld",
+    "SRIndexRogueBlessings",
+    "SRIndexRogueCurios",
+)
+
 
 @dataclass
 class RogueBuff:
@@ -207,7 +212,6 @@ class SRIndexRogueCurios(SRIndexGenerator):
             save_config("rogue_curios", parsed_curio_data, lang=language)
 
 
-
 class SRIndexRogueWorld(SRIndexGenerator):
     def __init__(self, *, lang_assets: LangAssets) -> None:
         self._lang_assets = lang_assets
@@ -268,7 +272,11 @@ class SRIndexRogueWorld(SRIndexGenerator):
 
 
 if __name__ == "__main__":
+    print("Loading language assets...")
     lang_assets = load_all_languages()
-    SRIndexRogueBlessings(lang_assets=lang_assets).generate()
-    SRIndexRogueCurios(lang_assets=lang_assets).generate()
+    print("Generating rogues/simulated universe...")
     SRIndexRogueWorld(lang_assets=lang_assets).generate()
+    print(" Generating blessings...")
+    SRIndexRogueBlessings(lang_assets=lang_assets).generate()
+    print(" Generating curios...")
+    SRIndexRogueCurios(lang_assets=lang_assets).generate()

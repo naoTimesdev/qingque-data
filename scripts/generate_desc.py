@@ -15,6 +15,7 @@ from sr_unity import strip_unity_rich_text
 
 __all__ = ("SRIndexDescription",)
 
+
 @dataclass
 class LoadingDescData:
     id: str
@@ -50,6 +51,9 @@ class SRIndexDescription(SRIndexGenerator):
 
             save_config("descriptions", desc_load_data, lang=language)
 
+
 if __name__ == "__main__":
+    print("Loading language assets...")
     lang_assets = load_all_languages()
+    print("Generating descriptions...")
     SRIndexDescription(lang_assets=lang_assets).generate()

@@ -87,7 +87,6 @@ def get_stable_hash(s: int | str) -> str:
     return str(combined_hash)
 
 
-
 def get_hash_content(hash_int_str: int | str | _Hashable, language: str = "en", *, lang_assets: LangAssets) -> str:
     if isinstance(hash_int_str, dict):
         hash_int_str = hash_int_str["Hash"]

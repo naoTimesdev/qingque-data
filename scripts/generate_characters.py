@@ -15,7 +15,12 @@ from sr_common import (
 )
 from sr_unity import strip_unity_rich_text
 
-__all__ = ("SRIndexCharacterPromotion",)
+__all__ = (
+    "SRIndexCharacterBase",
+    "SRIndexCharacterPromotion",
+    "SRIndexCharacterRank",
+    "SRIndexCharacterSkills",
+)
 
 
 @dataclass
@@ -77,6 +82,7 @@ class AvatarSkillTreeLevelData:
     properties: list[AvatarPropertyData]
     materials: list[AvatarIDNum]
 
+
 @dataclass
 class AvatarSkillTreeData:
     id: str
@@ -111,7 +117,6 @@ class SRIndexCharacterPromotion(SRIndexGenerator):
     def __init__(self, *, lang_assets: LangAssets) -> None:
         self._lang_assets = lang_assets
 
-
     def generate(self) -> None:
         raw_avatar_config = read_config("AvatarPromotionConfig")
 
@@ -124,10 +129,12 @@ class SRIndexCharacterPromotion(SRIndexGenerator):
                 for value in value_base.values():
                     materials: list[AvatarIDNum] = []
                     for mat in value["PromotionCostList"]:
-                        materials.append(AvatarIDNum(
-                            id=str(mat["ItemID"]),
-                            num=mat["ItemNum"],
-                        ))
+                        materials.append(
+                            AvatarIDNum(
+                                id=str(mat["ItemID"]),
+                                num=mat["ItemNum"],
+                            )
+                        )
                     materials_comp.append(materials)
 
                     promo_keys: dict[str, AvatarPromoValue] = {
@@ -190,16 +197,20 @@ class SRIndexCharacterRank(SRIndexGenerator):
 
                 skill_up = []
                 for key, count in value["SkillAddLevelList"].items():
-                    skill_up.append(AvatarIDNum(
-                        id=key,
-                        num=count,
-                    ))
+                    skill_up.append(
+                        AvatarIDNum(
+                            id=key,
+                            num=count,
+                        )
+                    )
                 materials = []
                 for material in value["UnlockCost"]:
-                    materials.append(AvatarIDNum(
-                        id=str(material["ItemID"]),
-                        num=material["ItemNum"],
-                    ))
+                    materials.append(
+                        AvatarIDNum(
+                            id=str(material["ItemID"]),
+                            num=material["ItemNum"],
+                        )
+                    )
 
                 params_flatten = []
                 for params in value["Param"]:
@@ -259,9 +270,7 @@ class SRIndexCharacterSkills(SRIndexGenerator):
 
                 params = []
                 for level_val in value.values():
-                    params.append([
-                        round(p_lvl["Value"], 3) for p_lvl in level_val["ParamList"]
-                    ])
+                    params.append([round(p_lvl["Value"], 3) for p_lvl in level_val["ParamList"]])
                 if "AttackType" not in val_first:
                     val_first["AttackType"] = "Talent"
                 if "StanceDamageType" not in val_first:
@@ -312,14 +321,9 @@ class SRIndexCharacterSkills(SRIndexGenerator):
                 params = []
                 levels_data: list[AvatarSkillTreeLevelData] = []
                 for idx, level_val in enumerate(value.values()):
-                    params.append([
-                        round(p_lvl["Value"], 3) for p_lvl in level_val["ParamList"]
-                    ])
+                    params.append([round(p_lvl["Value"], 3) for p_lvl in level_val["ParamList"]])
                     promo_properties = [
-                        AvatarPropertyData(
-                            type=prop["PropertyType"],
-                            value=round(prop["Value"]["Value"], 3)
-                        )
+                        AvatarPropertyData(type=prop["PropertyType"], value=round(prop["Value"]["Value"], 3))
                         for prop in level_val["StatusAddList"]
                     ]
                     promo_mats = [

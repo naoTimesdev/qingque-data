@@ -42,11 +42,17 @@ select = [
     # "D",
     "RUF",
     "COM",
-    "CPY",
     "PTH",
     "ASYNC",
 ]
 src = ["scripts"]
+preview = true
+
+[tool.ruff.format]
+preview = true
+quote-style = "single"
+indent-style = "space"
+skip-magic-trailing-comma = true
 
 [tool.ruff.pydocstyle]
 convention = "numpy"

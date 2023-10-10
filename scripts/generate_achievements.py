@@ -15,6 +15,7 @@ from sr_unity import strip_unity_rich_text
 
 __all__ = ("SRIndexAchivements",)
 
+
 @dataclass
 class AchievementData:
     id: str
@@ -70,6 +71,9 @@ class SRIndexAchivements(SRIndexGenerator):
 
             save_config("achievements", achieve_data, lang=language)
 
+
 if __name__ == "__main__":
+    print("Loading language assets...")
     lang_assets = load_all_languages()
+    print("Generating achievements...")
     SRIndexAchivements(lang_assets=lang_assets).generate()
