@@ -77,6 +77,7 @@ class SRIndexAvatars(SRIndexGenerator):
 
             save_config("avatars", avatar_icon, lang=language)
 
+
 if __name__ == "__main__":
     print("Loading language assets...")
     lang_assets = load_all_languages()

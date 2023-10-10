@@ -8,6 +8,7 @@ from sr_common import ROOT_DIR, LangAssets, SRIndexGenerator, load_all_languages
 
 SCRIPTS_DIR = ROOT_DIR / "scripts"
 
+
 def get_all_scripts() -> list[Path]:
     return [script for script in SCRIPTS_DIR.glob("generate_*.py") if not script.stem.endswith("all")]
 
