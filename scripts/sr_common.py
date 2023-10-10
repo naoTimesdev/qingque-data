@@ -19,6 +19,7 @@ __all__ = (
     "get_stable_hash",
     "get_hash_content",
     "remap_path_name",
+    "remap_element_name",
     "remap_icon_or_image",
     "format_with_params",
     "read_config",
@@ -118,6 +119,15 @@ def remap_path_name(path_name: str):
     return path_name
 
 
+def remap_element_name(elem_name: str):
+    replacer = {
+        "Thunder": "Lightning",
+    }
+    for key, value in replacer.items():
+        elem_name = elem_name.replace(key, value)
+    return elem_name
+
+
 def _warn_unhandled_path(path: str):
     if path.lower().startswith("spriteoutput/"):
         print(f">> Unhandled path: {path}")
@@ -148,6 +158,7 @@ def remap_icon_or_image(path: str):
             path = path.replace("BossIcon", "BossSwarmIcon")
         return path.replace("/RogueDlc", "/").replace("/Rogue", "/")
 
+    # Messages
     if path.startswith("SpriteOutput/AvatarRoundIcon/UI_Message_Contacts"):
         # Get everything after ui_message_contacts
         path = path.split("UI_Message_Contacts")[1][1:]
@@ -172,6 +183,11 @@ def remap_icon_or_image(path: str):
         # Replacer
         path = path.replace("_bp", "_skill").replace("_ultra", "_ultimate")
         return f"icon/skill/{path}"
+
+    # Properties
+    if path.startswith("SpriteOutput/UI/Avatar/Icon/"):
+        path = path.replace("SpriteOutput/UI/Avatar/Icon/", "icon/property/")
+        return path
 
     _warn_unhandled_path(path)
     return path
