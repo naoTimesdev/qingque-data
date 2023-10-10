@@ -202,7 +202,7 @@ class SRIndexRogueCurios(SRIndexGenerator):
                 parsed_curio_data[key] = RogueMiracle(
                     id=value_raw["MiracleID"],
                     name=name,
-                    icon=remap_icon_or_image(value["MiracleIconPath"]),
+                    icon=remap_icon_or_image(value["MiracleIconPath"], force_initial="rogue/curios"),
                     desc=strip_unity_rich_text(format_with_params(desc, params)),
                     params=params,
                     story_desc=strip_unity_rich_text(format_with_params(bg_desc, params)),

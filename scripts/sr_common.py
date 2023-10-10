@@ -133,12 +133,14 @@ def _warn_unhandled_path(path: str):
         print(f">> Unhandled path: {path}")
 
 
-def remap_icon_or_image(path: str):
+def remap_icon_or_image(path: str, *, force_initial: str | None = None):
     # Simulated Universe
     if path.startswith("SpriteOutput/Rogue/Buff/"):
         return path.replace("SpriteOutput/Rogue/Buff/", "icon/rogue/blessings/")
     if path.startswith("SpriteOutput/ItemIcon/"):
-        return path.replace("SpriteOutput/ItemIcon/", "icon/rogue/curios/")
+        if force_initial is not None:
+            return path.replace("SpriteOutput/ItemIcon/", f"icon/{force_initial}/")
+        return path.replace("SpriteOutput/ItemIcon/", "icon/item/")
     if path.startswith("SpriteOutput/AvatarProfessionTattoo/Profession/"):
         path = path.replace(
             "SpriteOutput/AvatarProfessionTattoo/Profession/BgPaths", "icon/rogue/blessings/RogueIntervene"
