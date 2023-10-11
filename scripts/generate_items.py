@@ -10,6 +10,7 @@ from sr_common import (
     get_hash_content,
     load_all_languages,
     read_config,
+    remap_icon_or_image,
     save_config,
 )
 from sr_unity import strip_unity_rich_text
@@ -58,13 +59,26 @@ class SRIndexInventoryItems(SRIndexGenerator):
             )
         return comes_from
 
-    def _handle_icon_path(self, item_id: str, path: str):
+    def _handle_icon_path(self, item_id: str, path: str, sub_type: str):
         if "Testmaterial" in path:
             # Get last part
             path = path.split("/")[-1]
             return f"icon/item/{path}"
 
-        return f"icon/item/{item_id}.png"
+        DEFAULT = f"icon/item/{item_id}.png"
+
+        if path.startswith("SpriteOutput/ItemIcon"):
+            # Strip the first part
+            path = path.split("/")[-1]
+            if path.endswith(".png"):
+                path = path[:-4]
+            if path.startswith("IconRelic"):
+                return DEFAULT
+            return f"icon/item/{path}.png"
+        if path.startswith("SpriteOutput/Quest/AetherDivide/"):
+            return remap_icon_or_image(path)
+
+        return DEFAULT
 
     def generate(self) -> None:
         raw_items_data = read_config("ItemConfig")
@@ -97,7 +111,7 @@ class SRIndexInventoryItems(SRIndexGenerator):
                     rarity=self._map_rarity(value["Rarity"]),
                     desc=strip_unity_rich_text(desc, only_tags=["unbreak"]),
                     story_desc=strip_unity_rich_text(story_desc, only_tags=["unbreak"]),
-                    icon=self._handle_icon_path(key, value["ItemIconPath"]),
+                    icon=self._handle_icon_path(key, value["ItemIconPath"], value["ItemSubType"]),
                     come_from=self._generate_come_from(raw_items_come_from.get(key), lang=language),
                 )
 

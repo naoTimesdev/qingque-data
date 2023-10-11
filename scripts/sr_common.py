@@ -119,6 +119,23 @@ def remap_path_name(path_name: str):
     return path_name
 
 
+def remap_skill_name(skill_name: str):
+    replacer = {
+        "normal02": "basic_atk",
+        "normal03": "basic_atk",
+        "normal04": "basic_atk",
+        "normal": "basic_atk",
+        "passive": "talent",
+        "maze": "technique",
+        "bp02": "skill",
+        "bp": "skill",
+        "ultra": "ultimate",
+    }
+    for key, value in replacer.items():
+        skill_name = skill_name.replace(key, value)
+    return skill_name
+
+
 def remap_element_name(elem_name: str):
     replacer = {
         "Thunder": "Lightning",
@@ -183,12 +200,20 @@ def remap_icon_or_image(path: str, *, force_initial: str | None = None):
         # Get the last part
         path = path.split("/")[-1].replace("SkillIcon_", "").lower()
         # Replacer
-        path = path.replace("_bp", "_skill").replace("_ultra", "_ultimate")
+        path = remap_skill_name(path)
         return f"icon/skill/{path}"
 
     # Properties
     if path.startswith("SpriteOutput/UI/Avatar/Icon/"):
         path = path.replace("SpriteOutput/UI/Avatar/Icon/", "icon/property/")
+        return path
+
+    # Aetherium Wars
+    if path.startswith("SpriteOutput/Quest/AetherDivide"):
+        path = path.replace(
+            "SpriteOutput/Quest/AetherDivide/AssembleSkill/Icon/IconAetherDivideAssembleSkill",
+            "icon/aether/assemble_skills/AssembleSkill",
+        )
         return path
 
     _warn_unhandled_path(path)

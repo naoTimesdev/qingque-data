@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from typing import cast
 
@@ -13,7 +14,7 @@ def get_all_scripts() -> list[Path]:
     return [script for script in SCRIPTS_DIR.glob("generate_*.py") if not script.stem.endswith("all")]
 
 
-def get_script_generators(script: Path) -> list[type[SRIndexGenerator]]:
+def get_script_generators(script: Path, skip_gen: list[str]) -> list[type[SRIndexGenerator]]:
     mod_spec = importlib.import_module(script.stem)
 
     generators: list[type[SRIndexGenerator]] = []
@@ -21,6 +22,9 @@ def get_script_generators(script: Path) -> list[type[SRIndexGenerator]]:
         # Check if inherit from SRIndexGenerator
         if isinstance(obj, SRIndexGenerator) and obj != SRIndexGenerator:
             print(f"{script.stem}: Found {name}")
+            if name in skip_gen:
+                print(f" Skipping {name}")
+                continue
             generators.append(cast(type[SRIndexGenerator], obj))
 
     return generators
@@ -33,13 +37,22 @@ def execute_script_generators(generators: list[type[SRIndexGenerator]], *, lang_
         generator.generate()
 
 
-def main():
+def argparser():
+    parser = ArgumentParser("generate_all")
+    parser.add_argument("-s", "--skip", nargs="+", help="Skip scripts")
+    return parser.parse_args()
+
+
+def main(args: Namespace):
     lang_data = load_all_languages()
     scripts = get_all_scripts()
     for script in scripts:
-        generators = get_script_generators(script)
+        if script.stem in args.skip:
+            continue
+        generators = get_script_generators(script, args.skip)
         execute_script_generators(generators, lang_assets=lang_data)
 
 
 if __name__ == "__main__":
-    main()
+    args = argparser()
+    main(args)

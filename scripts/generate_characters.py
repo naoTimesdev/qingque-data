@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import ClassVar
 
 from sr_common import (
     LangAssets,
@@ -230,6 +231,8 @@ class SRIndexCharacterRank(SRIndexGenerator):
 
 
 class SRIndexCharacterSkills(SRIndexGenerator):
+    UNUSED_SKILLS_TAG: ClassVar[list[int]] = [1323314283]
+
     def __init__(self, *, lang_assets: LangAssets) -> None:
         self._lang_assets = lang_assets
 
@@ -242,6 +245,9 @@ class SRIndexCharacterSkills(SRIndexGenerator):
 
             for _key, value in raw_avatar_skill_config.items():
                 val_first = value["1"]
+                sk_tag = val_first["SkillTag"]
+                if sk_tag["Hash"] in self.UNUSED_SKILLS_TAG:
+                    continue
                 name = get_hash_content(
                     val_first["SkillName"],
                     language=language,
@@ -263,7 +269,7 @@ class SRIndexCharacterSkills(SRIndexGenerator):
                     lang_assets=self._lang_assets,
                 )
                 effect_desc = get_hash_content(
-                    val_first["SkillTag"],
+                    sk_tag,
                     language=language,
                     lang_assets=self._lang_assets,
                 )
