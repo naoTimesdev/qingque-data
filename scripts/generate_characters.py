@@ -92,6 +92,7 @@ class AvatarSkillTreeData:
     desc: str
     params: list[list[float]]
     anchor: str
+    icon: str
     pre_points: list[str]  # required previous points?
     level_up_skills: list[AvatarIDNum]
     levels: list[AvatarSkillTreeLevelData]
@@ -367,6 +368,7 @@ class SRIndexCharacterSkills(SRIndexGenerator):
                     desc=strip_unity_rich_text(desc, only_tags=["unbreak"]),
                     params=params,
                     anchor=first_val["Anchor"],
+                    icon=remap_icon_or_image(first_val["IconPath"]),
                     pre_points=list(map(str, first_val["PrePoint"])),
                     level_up_skills=level_up_skills,
                     levels=levels_data,

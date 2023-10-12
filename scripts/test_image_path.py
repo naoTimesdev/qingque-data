@@ -46,6 +46,15 @@ def process_character_skills():
         if not assets_path.exists():
             print(f"  Missing {assets_path}")
 
+    print(" Processing character skill trees...")
+    chara_path = INDEX_DIR / "character_skill_trees.json"
+    chara_data = read_json(chara_path)
+
+    for chara in chara_data.values():
+        assets_path = ROOT_DIR / str(chara["icon"])
+        if not assets_path.exists():
+            print(f"  Missing {assets_path}")
+
 
 def process_characters():
     print("Processing characters...")
