@@ -30,7 +30,7 @@ class _MessageSectionConfig(_MessageSectionConfigOptional):
 class _MessageItemConfig(TypedDict):
     ID: int
     Sender: Literal["Player", "PlayerAuto", "NPC", "System"]
-    ItemType: Literal["Text", "Image", "Sticker", "Raid"]
+    ItemType: Literal["Text", "Image", "Sticker", "Raid", "Link"]
     MainText: Hashable
     OptionText: Hashable
     NextItemIDList: list[int]
@@ -67,6 +67,14 @@ class _MessageItemRaidEntranceConfig(TypedDict):
     ID: int
     RaidID: int
     ImagePath: str
+
+
+class _MessageItemLinkConfig(TypedDict):
+    ID: int
+    Title: Hashable
+    ImagePath: str
+    Type: str
+    OnceOnly: bool
 
 
 class _SimpleRaidConfig(TypedDict):
@@ -109,6 +117,8 @@ class MessageCamp(int, Enum):
     """Stellaron Hunters"""
     IPC = 6
     """Interastral Peace Corporation"""
+    Idrilla = 7
+    """Knights of Beauty"""
     Others = 99
     """Other camps"""
 
@@ -144,6 +154,8 @@ class MissionType(str, Enum):
     # Blue quest
     CompanionQuest = "Companion"
     # Purple quest
+    ContinuanceQuest = "Gap"
+    # Orange quest
 
 
 class Text(Struct, tag=True):
@@ -309,7 +321,49 @@ class Raid(Text, tag=True):
         )
 
 
-MessageContent = Text | Image | Sticker | Raid
+class LinkInfo(Struct):
+    id: int
+    """:class:`int`: The link ID."""
+    name: str
+    """:class:`str`: The link name."""
+    image: str
+    """:class:`str`: The link image path."""
+    type: str
+    """:class:`str`: The link type."""
+
+
+class Link(Text, tag=True):
+    link: LinkInfo
+    """:class:`LinkInfo`: The link info."""
+
+    @classmethod
+    def from_config(
+        cls: type[Link], config: _MessageItemConfig, contact_id: int, link: LinkInfo, lang: str = "en"
+    ) -> Link:
+        option_str: str | None = get_hash_content_with(config["OptionText"], lang)
+        if not option_str:
+            option_str = None
+
+        if "ContactsID" not in config and config["Sender"] == "NPC":
+            config["ContactsID"] = contact_id
+        elif "ContactsID" not in config:
+            config["ContactsID"] = None
+
+        link.image = remap_icon_or_image(link.image)
+
+        return cls(
+            id=config["ID"],
+            section_id=config["SectionID"],
+            sender_id=config["ContactsID"],
+            text=get_hash_content_with(config["MainText"], lang),
+            option=option_str,
+            next_ids=config["NextItemIDList"],
+            kind=MessageSender(config["Sender"]),
+            link=link,
+        )
+
+
+MessageContent = Text | Image | Sticker | Raid | Link
 
 
 class Message(Struct, tag=True):
@@ -420,6 +474,7 @@ def process_message_chains(
     emoji_configs: dict[str, _SimpleEmojiConfig],
     message_raid_configs: dict[str, _MessageItemRaidEntranceConfig],
     raid_configs: dict[str, dict[Literal["0"], _SimpleRaidConfig]],
+    link_configs: dict[str, _MessageItemLinkConfig],
 ):
     message_info = messages_configs[str(start_id)]
     match message_info["ItemType"]:
@@ -446,6 +501,17 @@ def process_message_chains(
                 image=msg_raid_raw["ImagePath"],
             )
             msg = Raid.from_config(message_info, contact_id, raid_inf)
+        case "Link":
+            msg_link_raw = link_configs[str(message_info["ItemContentID"])]
+            msg_link_inf = LinkInfo(
+                id=msg_link_raw["ID"],
+                name=get_hash_content_with(msg_link_raw["Title"]),
+                image=remap_icon_or_image(msg_link_raw["ImagePath"]),
+                type=msg_link_raw["Type"],
+            )
+            msg = Link.from_config(message_info, contact_id, msg_link_inf)
+        case _:
+            raise ValueError(f"Unknown message type: {message_info['ItemType']} ()")
     all_messages[str(msg.id)] = msg
     if not msg.next_ids:
         return all_messages
@@ -460,6 +526,7 @@ def process_message_chains(
             emoji_configs=emoji_configs,
             message_raid_configs=message_raid_configs,
             raid_configs=raid_configs,
+            link_configs=link_configs,
         )
 
 
@@ -474,6 +541,7 @@ def main_loader():
     item_images_config: dict[str, _MessageItemImageConfig] = read_config(
         "MessageItemImage", type=_MessageItemImageConfig
     )
+    link_quest_configs = read_config("MessageItemLink", type=_MessageItemLinkConfig)
 
     # Message contents
     messages_configs = read_config("MessageItemConfig", type=_MessageItemConfig)
@@ -481,7 +549,7 @@ def main_loader():
     message_sections = read_config("MessageSectionConfig", type=_MessageSectionConfig)
     # The message chat grouping
     message_groups = read_config("MessageGroupConfig", type=_MessageGroupConfig)
-
+    # Message contacts
     message_contacts = read_config("MessageContactsConfig", type=_MessageContactsConfig)
 
     print("Processing contacts...")
@@ -547,6 +615,7 @@ def main_loader():
                         emoji_configs=emoji_configs,
                         message_raid_configs=message_raid_configs,
                         raid_configs=raid_configs,
+                        link_configs=link_quest_configs,
                     )
                 print(
                     "   Done processing message...",

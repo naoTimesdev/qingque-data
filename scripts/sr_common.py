@@ -129,6 +129,7 @@ def remap_skill_name(skill_name: str):
         "maze": "technique",
         "bp02": "skill",
         "bp": "skill",
+        "ultra0": "ultimateS",
         "ultra": "ultimate",
     }
     for key, value in replacer.items():
@@ -194,6 +195,10 @@ def remap_icon_or_image(path: str, *, force_initial: str | None = None):
         return path.replace("SpriteOutput/PhoneMessagePic/PhoneMessagePic", "image/messages/E")
     if path.startswith("SpriteOutput/PhoneMessageChallenge/PhoneMessageChallenge_"):
         return path.replace("SpriteOutput/PhoneMessageChallenge/PhoneMessageChallenge_", "image/messages/Raid")
+    if path.startswith("SpriteOutput/Quest/GuessTheSilhouette/"):
+        return path.replace("SpriteOutput/Quest/GuessTheSilhouette/", "image/messages/March")
+    if path.startswith("SpriteOutput/Quest/Heliobus/PhoneMessageHeliobus"):
+        return path.replace("SpriteOutput/Quest/Heliobus/PhoneMessageHeliobus/", "image/messages/Link_")
 
     # Characters
     if path.startswith("SpriteOutput/SkillIcons/"):
