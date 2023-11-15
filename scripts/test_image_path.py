@@ -140,12 +140,24 @@ def process_rogues():
     process_rogue_curios()
 
 
+def process_relics():
+    print("Processing relics...")
+    relic_path = INDEX_DIR / "relics.json"
+    relic_data = read_json(relic_path)
+
+    for relic in relic_data.values():
+        icon_path = ROOT_DIR / str(relic["icon"])
+        if not icon_path.exists():
+            print(f"  Missing {icon_path}")
+
+
 def main():
     process_avatars()
     process_characters()
     process_inventory_items()
     process_light_cones()
     process_rogues()
+    process_relics()
 
 
 if __name__ == "__main__":
