@@ -30,7 +30,7 @@ class _MessageSectionConfig(_MessageSectionConfigOptional):
 class _MessageItemConfig(TypedDict):
     ID: int
     Sender: Literal["Player", "PlayerAuto", "NPC", "System"]
-    ItemType: Literal["Text", "Image", "Sticker", "Raid", "Link"]
+    ItemType: Literal["Text", "Image", "Sticker", "Raid", "Link", "Video"]
     MainText: Hashable
     OptionText: Hashable
     NextItemIDList: list[int]
@@ -61,6 +61,10 @@ class _MessageContactsConfig(_MessageContactsConfigOptional):
 class _MessageItemImageConfig(TypedDict):
     ID: int
     ImagePath: str
+
+
+class _MessageItemVideoConfig(_MessageItemImageConfig):
+    VideoID: int
 
 
 class _MessageItemRaidEntranceConfig(TypedDict):
@@ -119,6 +123,8 @@ class MessageCamp(int, Enum):
     """Interastral Peace Corporation"""
     Idrilla = 7
     """Knights of Beauty"""
+    Intelligentsia = 8
+    """Intelligentsia Guild"""
     Others = 99
     """Other camps"""
 
@@ -230,6 +236,46 @@ class Image(Text, tag=True):
             next_ids=config["NextItemIDList"],
             kind=MessageSender(config["Sender"]),
             image=image,
+        )
+
+
+class VideoInfo(Struct):
+    id: int
+    """:class:`int`: The video content ID."""
+    path: str
+    """:class:`str`: The video thumbnail path."""
+    video_id: int
+    """:class:`int`: The actual video ID."""
+
+
+class Video(Text, tag=True):
+    video: VideoInfo
+    """:class:`VideoInfo`: The video info."""
+
+    @classmethod
+    def from_config(
+        cls: type[Video], config: _MessageItemConfig, contact_id: int, video: VideoInfo, lang: str = "en"
+    ) -> Video:
+        option_str: str | None = get_hash_content_with(config["OptionText"], lang)
+        if not option_str:
+            option_str = None
+
+        if "ContactsID" not in config and config["Sender"] == "NPC":
+            config["ContactsID"] = contact_id
+        elif "ContactsID" not in config:
+            config["ContactsID"] = None
+
+        video.path = remap_icon_or_image(video.path)
+
+        return cls(
+            id=config["ID"],
+            section_id=config["SectionID"],
+            sender_id=config["ContactsID"],
+            text=get_hash_content_with(config["MainText"], lang),
+            option=option_str,
+            next_ids=config["NextItemIDList"],
+            kind=MessageSender(config["Sender"]),
+            video=video,
         )
 
 
@@ -471,6 +517,7 @@ def process_message_chains(
     *,
     messages_configs: dict[str, _MessageItemConfig],
     item_images_config: dict[str, _MessageItemImageConfig],
+    item_videos_config: dict[str, _MessageItemVideoConfig],
     emoji_configs: dict[str, _SimpleEmojiConfig],
     message_raid_configs: dict[str, _MessageItemRaidEntranceConfig],
     raid_configs: dict[str, dict[Literal["0"], _SimpleRaidConfig]],
@@ -510,6 +557,14 @@ def process_message_chains(
                 type=msg_link_raw["Type"],
             )
             msg = Link.from_config(message_info, contact_id, msg_link_inf)
+        case "Video":
+            msg_video_raw = item_videos_config[str(message_info["ItemContentID"])]
+            msg_video_inf = VideoInfo(
+                id=msg_video_raw["ID"],
+                path=msg_video_raw["ImagePath"],
+                video_id=msg_video_raw["VideoID"],
+            )
+            msg = Video.from_config(message_info, contact_id, msg_video_inf)
         case _:
             raise ValueError(f"Unknown message type: {message_info['ItemType']} ()")
     all_messages[str(msg.id)] = msg
@@ -523,6 +578,7 @@ def process_message_chains(
             all_messages,
             messages_configs=messages_configs,
             item_images_config=item_images_config,
+            item_videos_config=item_videos_config,
             emoji_configs=emoji_configs,
             message_raid_configs=message_raid_configs,
             raid_configs=raid_configs,
@@ -542,6 +598,7 @@ def main_loader():
         "MessageItemImage", type=_MessageItemImageConfig
     )
     link_quest_configs = read_config("MessageItemLink", type=_MessageItemLinkConfig)
+    item_videos_config = read_config("MessageItemVideo", type=_MessageItemVideoConfig)
 
     # Message contents
     messages_configs = read_config("MessageItemConfig", type=_MessageItemConfig)
@@ -612,6 +669,7 @@ def main_loader():
                         all_messages,
                         messages_configs=messages_configs,
                         item_images_config=item_images_config,
+                        item_videos_config=item_videos_config,
                         emoji_configs=emoji_configs,
                         message_raid_configs=message_raid_configs,
                         raid_configs=raid_configs,

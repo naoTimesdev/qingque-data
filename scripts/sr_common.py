@@ -161,6 +161,9 @@ def remap_icon_or_image(path: str, *, force_initial: str | None = None):
         return path.replace("SpriteOutput/ItemIcon/", "icon/item/")
     if path.startswith("SpriteOutput/AvatarProfessionTattoo/Profession/"):
         path = path.replace(
+            "SpriteOutput/AvatarProfessionTattoo/Profession/BgPathsn", "icon/rogue/blessings/RogueIntervene"
+        )
+        path = path.replace(
             "SpriteOutput/AvatarProfessionTattoo/Profession/BgPaths", "icon/rogue/blessings/RogueIntervene"
         )
         return path
