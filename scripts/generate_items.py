@@ -80,6 +80,10 @@ class SRIndexInventoryItems(SRIndexGenerator):
 
         return DEFAULT
 
+    def _should_ignore_subtype(self, sub_type: str) -> bool:
+        disallowed = ["ChessRogueDiceSurface", "MuseumStuff"]
+        return sub_type in disallowed
+
     def generate(self) -> None:
         raw_items_data = read_config("ItemConfig")
         raw_items_come_from = read_config("ItemComeFrom")
@@ -102,6 +106,9 @@ class SRIndexInventoryItems(SRIndexGenerator):
                     language=language,
                     lang_assets=self._lang_assets,
                 )
+
+                if self._should_ignore_subtype(value["ItemSubType"]):
+                    continue
 
                 items_data[key] = ItemData(
                     id=key,
