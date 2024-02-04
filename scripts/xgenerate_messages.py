@@ -125,6 +125,12 @@ class MessageCamp(int, Enum):
     """Knights of Beauty"""
     Intelligentsia = 8
     """Intelligentsia Guild"""
+    MaskedFools = 9
+    """Masked Fools"""
+    GardenOfRecollection = 10
+    """Garden of Recollection"""
+    Penacony = 11
+    """Penacony"""
     Others = 99
     """Other camps"""
 

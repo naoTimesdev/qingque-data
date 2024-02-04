@@ -186,10 +186,15 @@ def remap_icon_or_image(path: str, *, force_initial: str | None = None):
         # Get everything after ui_message_contacts
         path = path.split("UI_Message_Contacts")[1][1:]
         return f"icon/avatar/{path}"
+    if path.startswith("SpriteOutput/AvatarRoundIcon/Series/"):
+        path = path.replace("SpriteOutput/AvatarRoundIcon/Series/", "icon/avatar/Series")
+        return path
     if path.startswith("SpriteOutput/AvatarRoundIcon"):
         # Remove the first part
         path = path.split("AvatarRoundIcon")[1][1:]
         path = path.replace("UI_Message_Group_", "Group")
+        if path.startswith("UI_Message_"):
+            path = path.split("UI_Message_")[1]
         return f"icon/avatar/{path}"
     if path.startswith("SpriteOutput/Emoji/"):
         return path.replace("SpriteOutput/Emoji/", "icon/emoji/")
