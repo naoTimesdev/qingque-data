@@ -81,8 +81,13 @@ class SRIndexInventoryItems(SRIndexGenerator):
         return DEFAULT
 
     def _should_ignore_subtype(self, sub_type: str) -> bool:
-        disallowed = ["ChessRogueDiceSurface", "MuseumStuff"]
+        disallowed = ["ChessRogueDiceSurface", "MuseumStuff", "TravelBrochurePaster"]
         return sub_type in disallowed
+
+    def _should_skip_item_id(self, item_id: str) -> bool:
+        dis_range = range(149997, 150004 + 1)
+        disallowed = [str(i) for i in dis_range] + ["149990"]
+        return item_id in disallowed
 
     def generate(self) -> None:
         raw_items_data = read_config("ItemConfig")
@@ -91,6 +96,9 @@ class SRIndexInventoryItems(SRIndexGenerator):
         for language in get_available_languages():
             items_data = {}
             for key, value in raw_items_data.items():
+                if self._should_skip_item_id(key):
+                    continue
+
                 name = get_hash_content(
                     value["ItemName"],
                     language=language,
