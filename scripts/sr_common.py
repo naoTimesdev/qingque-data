@@ -151,7 +151,7 @@ def _warn_unhandled_path(path: str):
         print(f">> Unhandled path: {path}")
 
 
-def remap_icon_or_image(path: str, *, force_initial: str | None = None):
+def remap_icon_or_image(path: str, *, force_initial: str | None = None, item_id: str | None = None):
     # Simulated Universe
     if path.startswith("SpriteOutput/Rogue/Buff/"):
         return path.replace("SpriteOutput/Rogue/Buff/", "icon/rogue/blessings/")
@@ -197,6 +197,10 @@ def remap_icon_or_image(path: str, *, force_initial: str | None = None):
             path = path.split("UI_Message_")[1]
         return f"icon/avatar/{path}"
     if path.startswith("SpriteOutput/Emoji/"):
+        if path.startswith("SpriteOutput/Emoji/Mission/"):
+            if item_id is not None:
+                return f"icon/emoji/{item_id}.png"
+            return path.replace("SpriteOutput/Emoji/Mission/", "icon/emoji/Mission")
         return path.replace("SpriteOutput/Emoji/", "icon/emoji/")
     if path.startswith("SpriteOutput/PhoneMessagePic/"):
         path = path.replace("SpriteOutput/PhoneMessagePic/PhoneMessagePic_", "image/messages/")

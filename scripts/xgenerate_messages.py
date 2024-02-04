@@ -16,6 +16,10 @@ from sr_common import (
     remap_icon_or_image,
 )
 
+DISABLED_CONTACTS = [
+    1310,  # test_流萤
+]
+
 
 class _MessageSectionConfigOptional(TypedDict, total=False):
     IsPerformMessage: bool
@@ -297,7 +301,7 @@ class StickerInfo(Struct):
     def from_config(cls: type[StickerInfo], config: _SimpleEmojiConfig, lang: str = "en") -> StickerInfo:
         return cls(
             id=config["EmojiID"],
-            path=remap_icon_or_image(config["EmojiPath"]),
+            path=remap_icon_or_image(config["EmojiPath"], item_id=str(config["EmojiID"])),
             keywords=get_hash_content_with(config["KeyWords"], lang),
         )
 
@@ -620,6 +624,9 @@ def main_loader():
     for message_contact in message_contacts.values():
         try:
             msg_contact = MessageContact.from_config(message_contact)
+            if message_contact["ID"] in DISABLED_CONTACTS:
+                print("  Skipping disabled contact...", message_contact["ID"])
+                continue
             MSG_CONTACTS[str(message_contact["ID"])] = msg_contact
         except KeyError as err:
             print("  ", err, message_contact["ID"])
@@ -637,6 +644,10 @@ def main_loader():
     counter = 1
     USED_MAIN_CONTACTS = {}
     for group_contact_id, group_msg_ids in GROUPED_MESSAGES.items():
+        if group_contact_id in DISABLED_CONTACTS:
+            print("  Skipping disabled contact...", group_contact_id)
+            continue
+
         group_msg = MessageGroup(
             id=group_contact_id,
             sections=[],
