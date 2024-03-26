@@ -30,7 +30,7 @@ CONFIG_DIR = ROOT_DIR / "exceloutput"
 TEXTMAPS_DIR = ROOT_DIR / "textmaps"
 INDEX_DIR = ROOT_DIR / "index"
 HASH_NO_OPTION: Final[int] = 371857150
-_TDict = TypeVar("_TDict", bound=TypedDict)
+_TDict = TypeVar("_TDict", bound=TypedDict)  # type: ignore
 _Lang: TypeAlias = str
 LangAssets: TypeAlias = dict[_Lang, dict[str, str]]
 
@@ -196,6 +196,9 @@ def remap_icon_or_image(path: str, *, force_initial: str | None = None, item_id:
         if path.startswith("UI_Message_"):
             path = path.split("UI_Message_")[1]
         return f"icon/avatar/{path}"
+    if path.startswith("SpriteOutput/MonsterRoundIcon/"):
+        path = path.replace("SpriteOutput/MonsterRoundIcon/", "icon/avatar/")
+        return path
     if path.startswith("SpriteOutput/Emoji/"):
         if path.startswith("SpriteOutput/Emoji/Mission/"):
             if item_id is not None:

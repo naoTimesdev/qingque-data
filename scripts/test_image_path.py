@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Set
 
 import orjson
 from sr_common import ROOT_DIR
@@ -81,10 +81,14 @@ def process_inventory_items():
     chara_path = INDEX_DIR / "items.json"
     chara_data = read_json(chara_path)
 
+    missing_icons: Set[Path] = set()
     for chara in chara_data.values():
         icon_path = ROOT_DIR / str(chara["icon"])
         if not icon_path.exists():
-            print(f" Missing {icon_path}")
+            missing_icons.add(icon_path)
+    sorted_icons: list[Path] = sorted(list(missing_icons), key=lambda x: int(x.stem))
+    for icon_path in sorted_icons:
+        print(f" Missing {icon_path}")
 
 
 def process_light_cones():

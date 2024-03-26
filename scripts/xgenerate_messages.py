@@ -135,6 +135,10 @@ class MessageCamp(int, Enum):
     """Garden of Recollection"""
     Penacony = 11
     """Penacony"""
+    GalaxyRanger = 12
+    """Galaxy Ranger"""
+    SelfAnnihilator = 13
+    """Self-Annihilator"""
     Others = 99
     """Other camps"""
 
