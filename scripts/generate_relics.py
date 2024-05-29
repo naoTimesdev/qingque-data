@@ -148,8 +148,8 @@ class SRIndexRelicSets(SRIndexGenerator):
                     properties_flatten.append(
                         [
                             RelicPropData(
-                                type=prop["IMHNJLJDLLH"],
-                                value=round(prop["IEDALJJJBCE"]["Value"], 3),
+                                type=prop["PGMMFBALIAF"],
+                                value=round(prop["PKPGBCJMDEK"]["Value"], 3),
                             )
                             for prop in skill["PropertyList"]
                         ]

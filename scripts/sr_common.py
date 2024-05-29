@@ -53,11 +53,16 @@ def format_language(language_fn: str) -> str:
     return "cn" if la == "chs" else la
 
 
-def load_all_languages() -> LangAssets:
+def load_all_languages(specific_lang: list[str] | None = None) -> LangAssets:
     LANGUAGES_ASSETS: LangAssets = {}
     languages = list(TEXTMAPS_DIR.glob("*.json"))
 
     for language in languages:
+        if "TextMapMain" in language.stem:
+            continue
+        fmt_lang = format_language(language.stem)
+        if specific_lang is not None and len(specific_lang) > 0 and fmt_lang not in specific_lang:
+            continue
         with language.open("rb") as f:
             LANGUAGES_ASSETS[format_language(language.stem)] = orjson.loads(f.read())
     return LANGUAGES_ASSETS
@@ -65,7 +70,7 @@ def load_all_languages() -> LangAssets:
 
 def get_available_languages() -> list[str]:
     languages = list(TEXTMAPS_DIR.glob("*.json"))
-    ALL_LANGUAGES = [format_language(language.stem) for language in languages]
+    ALL_LANGUAGES = [format_language(language.stem) for language in languages if "TextMapMain" not in language.stem]
     return ALL_LANGUAGES
 
 

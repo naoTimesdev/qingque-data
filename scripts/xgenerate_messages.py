@@ -19,6 +19,7 @@ from sr_common import (
 DISABLED_CONTACTS = [
     1310,  # test_流萤
 ]
+SELECTED_LANGUAGE = "en"
 
 
 class _MessageSectionConfigOptional(TypedDict, total=False):
@@ -194,7 +195,9 @@ class Text(Struct, tag=True):
     kind: MessageSender
 
     @classmethod
-    def from_config(cls: type[Text], config: _MessageItemConfig, contact_id: int, lang: str = "en") -> Text:
+    def from_config(
+        cls: type[Text], config: _MessageItemConfig, contact_id: int, lang: str = SELECTED_LANGUAGE
+    ) -> Text:
         option_str: str | None = get_hash_content_with(config["OptionText"], lang)
         if not option_str:
             option_str = None
@@ -228,7 +231,7 @@ class Image(Text, tag=True):
 
     @classmethod
     def from_config(
-        cls: type[Image], config: _MessageItemConfig, contact_id: int, image: ImageInfo, lang: str = "en"
+        cls: type[Image], config: _MessageItemConfig, contact_id: int, image: ImageInfo, lang: str = SELECTED_LANGUAGE
     ) -> Image:
         option_str: str | None = get_hash_content_with(config["OptionText"], lang)
         if not option_str:
@@ -268,7 +271,7 @@ class Video(Text, tag=True):
 
     @classmethod
     def from_config(
-        cls: type[Video], config: _MessageItemConfig, contact_id: int, video: VideoInfo, lang: str = "en"
+        cls: type[Video], config: _MessageItemConfig, contact_id: int, video: VideoInfo, lang: str = SELECTED_LANGUAGE
     ) -> Video:
         option_str: str | None = get_hash_content_with(config["OptionText"], lang)
         if not option_str:
@@ -302,7 +305,7 @@ class StickerInfo(Struct):
     """:class:`str`: The sticker keywords."""
 
     @classmethod
-    def from_config(cls: type[StickerInfo], config: _SimpleEmojiConfig, lang: str = "en") -> StickerInfo:
+    def from_config(cls: type[StickerInfo], config: _SimpleEmojiConfig, lang: str = SELECTED_LANGUAGE) -> StickerInfo:
         return cls(
             id=config["EmojiID"],
             path=remap_icon_or_image(config["EmojiPath"], item_id=str(config["EmojiID"])),
@@ -316,7 +319,11 @@ class Sticker(Text, tag=True):
 
     @classmethod
     def from_config(
-        cls: type[Sticker], config: _MessageItemConfig, contact_id: int, sticker: StickerInfo, lang: str = "en"
+        cls: type[Sticker],
+        config: _MessageItemConfig,
+        contact_id: int,
+        sticker: StickerInfo,
+        lang: str = SELECTED_LANGUAGE,
     ) -> Sticker:
         option_str: str | None = get_hash_content_with(config["OptionText"], lang)
         if not option_str:
@@ -356,7 +363,7 @@ class Raid(Text, tag=True):
 
     @classmethod
     def from_config(
-        cls: type[Raid], config: _MessageItemConfig, contact_id: int, raid: RaidInfo, lang: str = "en"
+        cls: type[Raid], config: _MessageItemConfig, contact_id: int, raid: RaidInfo, lang: str = SELECTED_LANGUAGE
     ) -> Raid:
         option_str: str | None = get_hash_content_with(config["OptionText"], lang)
         if not option_str:
@@ -398,7 +405,7 @@ class Link(Text, tag=True):
 
     @classmethod
     def from_config(
-        cls: type[Link], config: _MessageItemConfig, contact_id: int, link: LinkInfo, lang: str = "en"
+        cls: type[Link], config: _MessageItemConfig, contact_id: int, link: LinkInfo, lang: str = SELECTED_LANGUAGE
     ) -> Link:
         option_str: str | None = get_hash_content_with(config["OptionText"], lang)
         if not option_str:
@@ -443,7 +450,9 @@ class MissionInfo(Struct):
     """:class:`MissionType`: The mission type."""
 
     @classmethod
-    def from_config(cls: type[MissionInfo], config: _SimpleMainMissionConfig, lang: str = "en") -> MissionInfo:
+    def from_config(
+        cls: type[MissionInfo], config: _SimpleMainMissionConfig, lang: str = SELECTED_LANGUAGE
+    ) -> MissionInfo:
         return cls(
             id=config["MainMissionID"],
             name=get_hash_content_with(config["Name"], lang),
@@ -474,7 +483,9 @@ class MessageContact(Struct):
     """:class:`MessageCamp`: The message contact camp."""
 
     @classmethod
-    def from_config(cls: type[MessageContact], config: _MessageContactsConfig, lang: str = "en") -> MessageContact:
+    def from_config(
+        cls: type[MessageContact], config: _MessageContactsConfig, lang: str = SELECTED_LANGUAGE
+    ) -> MessageContact:
         signature: str | None = get_hash_content_with(config["SignatureText"], lang)
         if not signature:
             signature = None
@@ -717,6 +728,6 @@ def main_loader():
 
 if __name__ == "__main__":
     print("Loading lang assets...")
-    LANG_ASSETS = load_all_languages()
+    LANG_ASSETS = load_all_languages([SELECTED_LANGUAGE])
     get_hash_content_with = functools.partial(get_hash_content, lang_assets=LANG_ASSETS)
     main_loader()
