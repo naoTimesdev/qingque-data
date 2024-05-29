@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from sr_common import (
     LangAssets,
@@ -118,9 +119,26 @@ class SRIndexRelicSets(SRIndexGenerator):
     def __init__(self, *, lang_assets: LangAssets) -> None:
         self._lang_assets = lang_assets
 
+    def _find_prop_name(self, relic_data: dict[str, Any]) -> tuple[str, str]:
+        item_101_2_props = relic_data["101"]["2"]["PropertyList"][0]
+
+        relic_prop_name = None
+        relic_prop_value = None
+        for key, value in item_101_2_props.items():
+            if isinstance(value, dict) and "Value" in value and relic_prop_value is None:
+                relic_prop_value = key
+            if isinstance(value, str) and relic_prop_name is None:
+                relic_prop_name = key
+
+        if relic_prop_name is None or relic_prop_value is None:
+            raise ValueError("Failed to find relic prop name and value")
+        return relic_prop_name, relic_prop_value
+
     def generate(self) -> None:
         raw_relics_data = read_config("RelicSetConfig")
         raw_relic_skills_data = read_config("RelicSetSkillConfig")
+
+        rprop_name, rprop_value = self._find_prop_name(raw_relic_skills_data)
 
         for language in get_available_languages():
             relics_data = {}
@@ -148,8 +166,8 @@ class SRIndexRelicSets(SRIndexGenerator):
                     properties_flatten.append(
                         [
                             RelicPropData(
-                                type=prop["PGMMFBALIAF"],
-                                value=round(prop["PKPGBCJMDEK"]["Value"], 3),
+                                type=prop[rprop_name],
+                                value=round(prop[rprop_value]["Value"], 3),
                             )
                             for prop in skill["PropertyList"]
                         ]
