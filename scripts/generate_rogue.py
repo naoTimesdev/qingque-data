@@ -20,6 +20,16 @@ __all__ = (
     "SRIndexRogueBlessings",
     "SRIndexRogueCurios",
 )
+IGNORE_BLESSINGS = [
+    "620001",
+    "620002",
+    "620003",
+    "620004",
+    "620005",
+    "620006",
+    "620007",
+    "620008",
+]
 
 
 @dataclass
@@ -81,6 +91,17 @@ class SRIndexRogueBlessings(SRIndexGenerator):
     def __init__(self, *, lang_assets: LangAssets) -> None:
         self._lang_assets = lang_assets
 
+    def map_buff_category(self, buff_type: str) -> int:
+        match buff_type:
+            case "Common":
+                return 1
+            case "Rare":
+                return 2
+            case "Legendary":
+                return 3
+            case _:
+                raise ValueError(f"Unknown buff type: {buff_type}")
+
     def generate(self) -> None:
         buff_raw_data = read_config("RogueBuff")
         buff_rogue_display_raw_data = read_config("RogueMazeBuff")
@@ -91,6 +112,8 @@ class SRIndexRogueBlessings(SRIndexGenerator):
             parsed_buff_data = {}
 
             for key, value in buff_raw_data.items():
+                if key in IGNORE_BLESSINGS:
+                    continue
                 buff_raw_level = value["1"]
                 if buff_raw_level["RogueBuffType"] == 100:
                     continue
@@ -131,7 +154,7 @@ class SRIndexRogueBlessings(SRIndexGenerator):
                     desc_battle=strip_unity_rich_text(format_with_params(battle_desc, params), only_tags=["unbreak"]),
                     max_level=first_level["LvMax"],
                     params=params,
-                    rarity=buff_raw_level["RogueBuffRarity"],
+                    rarity=self.map_buff_category(buff_raw_level["RogueBuffCategory"]),
                     kind=buff_raw_level["RogueBuffType"],
                 )
 
@@ -170,12 +193,54 @@ class SRIndexRogueCurios(SRIndexGenerator):
     def generate(self) -> None:
         miracle_raw_data = read_config("RogueMiracle")
         miracle_disp_raw_data = read_config("RogueMiracleDisplay")
+        miracle_tourn_raw_data = read_config("RogueTournMiracle")
+        miracle_tourn_disp_raw_data = read_config("RogueTournMiracleDisplay")
 
+        saved_ids = []
         for language in get_available_languages():
             parsed_curio_data = {}
 
             for key, value_raw in miracle_raw_data.items():
                 value = miracle_disp_raw_data[str(value_raw["MiracleDisplayID"])]
+
+                name = get_hash_content(
+                    value["MiracleName"],
+                    language=language,
+                    lang_assets=self._lang_assets,
+                )
+                desc = get_hash_content(
+                    value["MiracleDesc"],
+                    language=language,
+                    lang_assets=self._lang_assets,
+                )
+                bg_desc = get_hash_content(
+                    value["MiracleBGDesc"],
+                    language=language,
+                    lang_assets=self._lang_assets,
+                )
+                tag = get_hash_content(
+                    value["MiracleTag"],
+                    language=language,
+                    lang_assets=self._lang_assets,
+                )
+                params = list(map(lambda x: x["Value"], value["DescParamList"]))
+
+                parsed_curio_data[key] = RogueMiracle(
+                    id=value_raw["MiracleID"],
+                    name=name,
+                    icon=remap_icon_or_image(value["MiracleIconPath"], force_initial="rogue/curios"),
+                    desc=strip_unity_rich_text(format_with_params(desc, params)),
+                    params=params,
+                    story_desc=strip_unity_rich_text(format_with_params(bg_desc, params)),
+                    tag=tag,
+                )
+                saved_ids.append(key)
+
+            for key, value_raw in miracle_tourn_raw_data.items():
+                if key in saved_ids:
+                    continue
+
+                value = miracle_tourn_disp_raw_data[str(value_raw["MiracleDisplayID"])]
 
                 name = get_hash_content(
                     value["MiracleName"],

@@ -126,6 +126,7 @@ def remap_path_name(path_name: str):
 
 def remap_skill_name(skill_name: str):
     replacer = {
+        "mazenormal": "technique",
         "normal02": "basic_atk",
         "normal03": "basic_atk",
         "normal04": "basic_atk",
