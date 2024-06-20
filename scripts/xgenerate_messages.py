@@ -16,9 +16,7 @@ from sr_common import (
     remap_icon_or_image,
 )
 
-DISABLED_CONTACTS = [
-    1310,  # test_流萤
-]
+DISABLED_CONTACTS = []
 SELECTED_LANGUAGE = "en"
 
 
@@ -66,6 +64,7 @@ class _MessageContactsConfig(_MessageContactsConfigOptional):
 class _MessageItemImageConfig(TypedDict):
     ID: int
     ImagePath: str
+    FemaleImagePath: str
 
 
 class _MessageItemVideoConfig(_MessageItemImageConfig):
@@ -221,8 +220,10 @@ class Text(Struct, tag=True):
 class ImageInfo(Struct):
     id: int
     """:class:`int`: The image ID."""
-    path: str
-    """:class:`str`: The image path."""
+    m_path: str
+    """:class:`str`: Male variant of the image path."""
+    f_path: str
+    """:class:`str`: Female variant of the image path"""
 
 
 class Image(Text, tag=True):
@@ -242,7 +243,14 @@ class Image(Text, tag=True):
         elif "ContactsID" not in config:
             config["ContactsID"] = None
 
-        image.path = remap_icon_or_image(image.path)
+        image.m_path = remap_icon_or_image(image.m_path)
+        image.f_path = remap_icon_or_image(image.f_path)
+        if image.m_path and not image.f_path:
+            image.f_path = image.m_path
+        elif image.f_path and not image.m_path:
+            image.m_path = image.f_path
+        elif not image.m_path and not image.f_path:
+            raise ValueError("Image path is missing...")
 
         return cls(
             id=config["ID"],
@@ -556,7 +564,8 @@ def process_message_chains(
             img_raw = item_images_config[str(message_info["ItemContentID"])]
             img_inf = ImageInfo(
                 id=img_raw["ID"],
-                path=img_raw["ImagePath"],
+                m_path=img_raw["ImagePath"],
+                f_path=img_raw["FemaleImagePath"],
             )
             msg = Image.from_config(message_info, contact_id, img_inf)
         case "Sticker":

@@ -158,6 +158,8 @@ def _warn_unhandled_path(path: str):
 
 
 def remap_icon_or_image(path: str, *, force_initial: str | None = None, item_id: str | None = None):
+    if not path:
+        return path
     # Simulated Universe
     if path.startswith("SpriteOutput/Rogue/Buff/"):
         return path.replace("SpriteOutput/Rogue/Buff/", "icon/rogue/blessings/")
